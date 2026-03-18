@@ -63,7 +63,19 @@ export default async function excluirPessoa(dados: any, tentativa = 1) {
 
         const divResultado = popupBusca.locator('#divResultado');
         await divResultado.waitFor({ state: 'visible' });
-        await divResultado.locator('tr').filter({ hasText: 'ATIVO'}).locator('a').first().click();
+        const linkAtivo = await divResultado.locator('tr').filter({ hasText: 'ATIVO'}).locator('a').first();
+
+        try{
+            await linkAtivo.waitFor({ state: 'visible', timeout: 5000});
+
+            await linkAtivo.click({ timeout: 5000});
+        }catch (erroBusca) {
+            console.warn('Beneficiário não encontrado pelo CPF ou não possui plano ativo.')
+            return {
+                sucesso: false,
+                mensagem: 'Beneficiário não encontrado ou não possui plano ATIVO para exclusão no portal.'
+            };
+        }
 
         await popupBusca.waitFor({ state: 'hidden', timeout: 10000});
         await frameExclusao.locator('.botao.continuar').click();

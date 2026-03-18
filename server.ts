@@ -77,6 +77,7 @@ app.post('/api/cadastrar', async (req, res) => {
 app.post('/api/excluir-plano', async (req, res) => {
     try {
         const validacao = exclusaoSchema.safeParse(req.body);
+        
         if (!validacao.success) {
             const errosFormatados = validacao.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`);
             console.warn(`Erro de validação do Zod: Dados inválidos recebidos.`);
@@ -103,7 +104,7 @@ app.post('/api/excluir-plano', async (req, res) => {
     }
 })
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`API do Robô rodando na porta ${PORT}`);
 });

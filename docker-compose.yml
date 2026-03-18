@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  robo-api:
+    build: .
+    container_name: robo-unimed-local
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./sessao.json:/app/sessao.json
+    shm_size: '1gb'

@@ -30,6 +30,13 @@ export default async function cadastrarPessoa(dados: any, tentativa = 1) {
         "ESSENCIAL PLUS ADESAO": "384"
     };
 
+    const mapaPlanoSiprovPlanoUnimed: Record<string, string> = {
+        "Essencial Nacional": "ESSENCIAL ADESAO",
+        "Essencial Plus Nacional": "ESSENCIAL PLUS ADESAO",
+        "Essencial Plus Doc Nacional": "ESSENCIAL PLUS DOC ADESAO",
+        "Pleno Nacional": "PLENO (SEM ORTO) ADESAO"
+    };
+
     try {
         console.log(`Cadastrando...`);
         await page.goto("https://portal.segurosunimed.com.br/");
@@ -83,12 +90,18 @@ export default async function cadastrarPessoa(dados: any, tentativa = 1) {
             await frameCadastro.locator('#ind_estado_civil').selectOption('6');
         }
 
-        const valorPlanoSaude = mapaPlanoSaude[dados.planoSaude];
+        const planoSaudeUnimed =  mapaPlanoSiprovPlanoUnimed[dados.planoSaude];
+
+        if (!planoSaudeUnimed) {
+            return { sucesso: false, mensagem: "Plano Incorreto ou não cadastrado!"}
+        }
+
+        const valorPlanoSaude = mapaPlanoSaude[planoSaudeUnimed];
         if (valorPlanoSaude) {
             await frameCadastro.locator('#cod_plano').selectOption(valorPlanoSaude);
         } else {
-            console.warn(`Plano desconhecido: ${dados.planoSaude}. Selecionado a opção Padrão.`);
-            await frameCadastro.locator('#cod_plano').selectOption('388');
+            console.warn(`Plano desconhecido: ${dados.planoSaude}.`);
+            return { sucesso: false, mensagem: "Tipo de Plano Incorreto"}
         }
 
         console.log("Preenchendo Município...");
