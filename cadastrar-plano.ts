@@ -29,7 +29,7 @@ export default async function cadastrarPessoa(dados: any, tentativa = 1) {
     const planoSaudeUnimed =  mapaPlanoSiprovPlanoUnimed[dados.planoSaude];
 
     if (!planoSaudeUnimed) {
-        return { sucesso: false, mensagem: "Plano Incorreto ou não cadastrado!"}
+        return { sucesso: false, cliente: dados.nomeCompleto, mensagem: "Plano Incorreto ou não cadastrado!"}
     }
     
     const browser = await chromium.launch({ 
@@ -101,7 +101,7 @@ export default async function cadastrarPessoa(dados: any, tentativa = 1) {
             await frameCadastro.locator('#cod_plano').selectOption(valorPlanoSaude);
         } else {
             console.warn(`Plano desconhecido: ${dados.planoSaude}.`);
-            return { sucesso: false, mensagem: "Tipo de Plano Incorreto"}
+            return { sucesso: false, cliente: dados.nomeCompleto, mensagem: "Tipo de Plano Incorreto"}
         }
 
         console.log("Preenchendo Município...");
@@ -139,22 +139,22 @@ export default async function cadastrarPessoa(dados: any, tentativa = 1) {
             if (textoRetorno.toLowerCase().includes('sucesso')) {
                 console.log('SUCESSO: Pessoa cadastrada perfeitamente!');
                 console.log(`Mensagem exata: ${textoRetorno.trim()}`);
-                return { sucesso: true, mensagem: textoRetorno.trim() };
+                return { sucesso: true, cliente: dados.nomeCompleto, mensagem: textoRetorno.trim() };
 
             } else {
                 console.error(`ALERTA: O site retornou uma falha de negócio.`);
                 console.error(`Motivo: ${textoRetorno.trim()}`);
-                return { sucesso: false, mensagem: textoRetorno.trim() };
+                return { sucesso: false, cliente: dados.nomeCompleto, mensagem: textoRetorno.trim() };
             }
 
         } catch (erroTimeout) {
             console.error('ERRO: O site demorou muito para responder ou não exibiu nenhuma mensagem.');
-            return { sucesso: false, mensagem: "O portal da Seguradora demorou muito para responder." };
+            return { sucesso: false, cliente: dados.nomeCompleto, mensagem: "O portal da Seguradora demorou muito para responder." };
         }  
         
     } catch (e) {
         console.error('Erro na execução do robô:', e);
-        return { sucesso: false, mensagem: `Erro interno no robô: ${String(e)}` };
+        return { sucesso: false, cliente: dados.nomeCompleto, mensagem: `Erro interno no robô: ${String(e)}` };
     } finally {
         if (browser.isConnected()) {
             await browser.close();

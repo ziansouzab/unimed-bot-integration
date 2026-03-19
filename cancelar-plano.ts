@@ -73,6 +73,7 @@ export default async function excluirPessoa(dados: any, tentativa = 1) {
             console.warn('Beneficiário não encontrado pelo CPF ou não possui plano ativo.')
             return {
                 sucesso: false,
+                cliente: dados.nomeCompleto,
                 mensagem: 'Beneficiário não encontrado ou não possui plano ATIVO para exclusão no portal.'
             };
         }
@@ -97,21 +98,21 @@ export default async function excluirPessoa(dados: any, tentativa = 1) {
             if (textoRetorno.toLowerCase().includes('sucesso')) {
                 console.log('SUCESSO: Pessoa excluida com sucesso!');
                 console.log(`Mensagem exata: ${textoRetorno.trim()}`);
-                return { sucesso: true, mensagem: textoRetorno.trim() };
+                return { sucesso: true, cliente: dados.nomeCompleto, mensagem: textoRetorno.trim() };
             } else {
                 console.error(`ALERTA: O site retornou uma falha de negócio ao excluir.`);
                 console.error(`Motivo: ${textoRetorno.trim()}`);
-                return { sucesso: false, mensagem: textoRetorno.trim() };
+                return { sucesso: false, cliente: dados.nomeCompleto, mensagem: textoRetorno.trim() };
             }
 
         } catch (erroTimeout) {
             console.error('ERRO: O site demorou muito para responder ou não exibiu nenhuma mensagem.');
-            return { sucesso: false, mensagem: "O portal da Seguradora demorou muito para responder." };
+            return { sucesso: false, cliente: dados.nomeCompleto, mensagem: "O portal da Seguradora demorou muito para responder." };
         }
 
     } catch(e){
         console.error('Erro na execução do robô:', e);
-        return { sucesso: false, mensagem: `Erro interno no robô: ${String(e)}` };
+        return { sucesso: false, cliente: dados.nomeCompleto, mensagem: `Erro interno no robô: ${String(e)}` };
     } finally {
         if (browser.isConnected()){
             await browser.close();
