@@ -2,17 +2,6 @@ import { chromium } from 'playwright';
 import gerarSessao from './gerar-sessao.js';
 
 export default async function cadastrarPessoa(dados: any, tentativa = 1) {
-    const browser = await chromium.launch({ 
-        headless: true,
-        args: ['--no-sandbox', 
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu'
-        ]
-     });
-    const context = await browser.newContext({ storageState: 'sessao.json' });
-    const page = await context.newPage();
-
     const mapaEstadoCivil: Record<string, string> = {
         "Solteiro": "1",
         "Casado": "2",
@@ -37,9 +26,26 @@ export default async function cadastrarPessoa(dados: any, tentativa = 1) {
         "Pleno Nacional": "PLENO (SEM ORTO) ADESAO"
     };
 
-    try {
-        console.log(`Cadastrando...`);
-        await page.goto("https://portal.segurosunimed.com.br/");
+    const planoSaudeUnimed =  mapaPlanoSiprovPlanoUnimed[dados.planoSaude];
+
+    if (!planoSaudeUnimed) {
+        return { sucesso: false, mensagem: "Plano Incorreto ou não cadastrado!"}
+    }
+    
+    const browser = await chromium.launch({ 
+        headless: true,
+        args: ['--no-sandbox', 
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu'
+        ]
+     });
+    const context = await browser.newContext({ storageState: 'sessao.json' });
+    const page = await context.newPage();
+    
+        try {
+            console.log(`Cadastrando...`);
+            await page.goto("https://portal.segurosunimed.com.br/");
 
         try {
             await page.getByText("Sair do Portal", {exact: false}).waitFor({ state: "visible", timeout: 5000 });
@@ -88,12 +94,6 @@ export default async function cadastrarPessoa(dados: any, tentativa = 1) {
         } else {
             console.warn(`Estado civil desconhecido: ${dados.estadoCivil}. Selecionado a opção "Outros".`);
             await frameCadastro.locator('#ind_estado_civil').selectOption('6');
-        }
-
-        const planoSaudeUnimed =  mapaPlanoSiprovPlanoUnimed[dados.planoSaude];
-
-        if (!planoSaudeUnimed) {
-            return { sucesso: false, mensagem: "Plano Incorreto ou não cadastrado!"}
         }
 
         const valorPlanoSaude = mapaPlanoSaude[planoSaudeUnimed];
