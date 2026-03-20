@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 
 app.post('/api/cadastrar', cadastrarPlano);
 
-app.post('/api/excluir-plano', async (req, res) => {
+/* app.post('/api/excluir-plano', async (req, res) => {
     try {
         const validacao = exclusaoSchema.safeParse(req.body);
         
@@ -40,7 +40,7 @@ app.post('/api/excluir-plano', async (req, res) => {
     } catch (erro) {
         res.status(500).json({ sucesso: false, erro: String(erro) });
     }
-})
+}) */
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {

@@ -15,4 +15,4 @@ RUN touch sessao.json && chmod 777 sessao.json
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["node", "dist/server.js"]

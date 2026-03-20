@@ -12,11 +12,13 @@ async function obterTokenAutenticacao(): Promise<string> {
     }
 
     console.log('[API Integrada] Token expirado ou ausente. Gerando um novo...');
+
+    const stringLogin = Buffer.from(`${process.env.SIPROV_EMAIL}:${process.env.SIPROV_SENHA}`).toString('base64');
     
     const respostaAuth = await fetch('https://acesso.siprov.com.br/siprov-api/ext/autenticacao', {
         method: 'POST',
         headers: { 
-            'Authorization': `${process.env.SIPROV_EMAIL}:${process.env.SIPROV_SENHA}`,
+            'Authorization': `Basic ${stringLogin}`,
             'Accept': '*/*',  
         }
     });

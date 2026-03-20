@@ -1,7 +1,11 @@
 import { chromium } from 'playwright';
 import gerarSessao from './gerar-sessao.js';
+import { normalizarNumero } from '../utils/utils.js';
 
-export default async function cadastrarPessoa(dados: any, tentativa = 1) {
+export default async function cadastrarPessoa(data: any, tentativa = 1) {
+
+    const dados = data.itens[0];
+
     const mapaEstadoCivil: Record<string, string> = {
         "Solteiro": "1",
         "Casado": "2",
@@ -26,7 +30,7 @@ export default async function cadastrarPessoa(dados: any, tentativa = 1) {
         "Pleno Nacional": "PLENO (SEM ORTO) ADESAO"
     };
 
-    const planoSaudeUnimed =  mapaPlanoSiprovPlanoUnimed[dados.planoSaude];
+    const planoSaudeUnimed =  mapaPlanoSiprovPlanoUnimed[dados.planos[0].nome];
 
     if (!planoSaudeUnimed) {
         return { sucesso: false, cliente: dados.nomeCompleto, mensagem: "Plano Incorreto ou não cadastrado!"}
@@ -76,10 +80,10 @@ export default async function cadastrarPessoa(dados: any, tentativa = 1) {
         await frameCadastro.locator('#num_cpf').waitFor({ state: 'visible' });
         console.log('Formulário carregado! Preenchendo dados...');
 
-        await frameCadastro.locator('#num_cpf').fill(dados.cpf);
-        await frameCadastro.locator('#nome_associado').fill(dados.nomeCompleto);
+        await frameCadastro.locator('#num_cpf').fill(dados.cpfCnpj.replace(/\D/g, ""));
+        await frameCadastro.locator('#nome_associado').fill(dados.nomePessoa);
 
-        if(dados.sexo === "Masculino") {
+        if(dados.sexo === "M") {
             await frameCadastro.locator('input[name="ind_sexo"][value="M"]').check();
         } else {
             await frameCadastro.locator('input[name="ind_sexo"][value="F"]').check();
@@ -108,24 +112,28 @@ export default async function cadastrarPessoa(dados: any, tentativa = 1) {
         await frameCadastro.locator('img[onclick*="cod_municipio_resid"]').click();
         const popupBusca = frameCadastro.locator('#divPopUp');
         await popupBusca.waitFor({state: 'visible'});
-        await popupBusca.locator('select[name="sgl_uf_popup"]').selectOption(dados.ufMunicipio);
-        await popupBusca.locator('#nom_municipio_popup').fill(dados.nomeMunicipio);
+        await popupBusca.locator('select[name="sgl_uf_popup"]').selectOption(dados.endereco.uf);
+        await popupBusca.locator('#nom_municipio_popup').fill(dados.endereco.cidade);
         await popupBusca.locator('#continuar').click();
         const divResultado = popupBusca.locator('#divResultado');
         await divResultado.waitFor({ state: 'visible' });
         await divResultado.locator('a').first().click();
         console.log('Município preenchido com sucesso!');
 
-        await frameCadastro.locator('#num_unico_saude').fill(dados.cartaoSaude);
+        await frameCadastro.locator('#num_unico_saude').fill(dados.numeroCartaoDesconto.replace(/\D/g, ""));
 
-        await frameCadastro.locator('#num_cep').pressSequentially(dados.cep, { delay: 50 });
-        await frameCadastro.locator('#num_endereco').fill(dados.numEndereco);
+        await frameCadastro.locator('#num_cep').pressSequentially(dados.endereco.cep.replace(/\D/g, ""), { delay: 50 });
+        await frameCadastro.locator('#num_endereco').fill(dados.endereco.numero);
 
-        await frameCadastro.locator('#ddd_celular_1').fill(dados.dddCelular);
-        await frameCadastro.locator('#num_celular_1').fill(dados.numCelular);
+        const {ddd, numero} = normalizarNumero(dados.telefoneCelular);
+
+        await frameCadastro.locator('#ddd_celular_1').fill(ddd);
+        await frameCadastro.locator('#num_celular_1').fill(numero);
         await frameCadastro.locator('#end_email_1').fill(dados.email);
 
-        await frameCadastro.locator('#num_matric_empresa').fill(dados.matriculaEmpresa);
+        const matricula = Date.now().toString();
+
+        await frameCadastro.locator('#num_matric_empresa').fill(matricula);
         
         console.log('Enviando formulário...');
 
