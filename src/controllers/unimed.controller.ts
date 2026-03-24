@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import { roboQueue } from '../config/redis.js';
 import { cadastroSchema, exclusaoSchema } from '../schemas/unimed.schema.js';
 import { buscarDadosBeneficiario } from '../integrations/api-dados.js';
+import { adaptarParaRobo } from '../integrations/adapter.js';
 
 export const cadastrarPlano = async (req: Request, res: Response): Promise<any> => {
 
@@ -17,7 +18,9 @@ export const cadastrarPlano = async (req: Request, res: Response): Promise<any> 
 
         const dadosCliente = await buscarDadosBeneficiario(codPessoa);
 
-        const validacao = cadastroSchema.safeParse(dadosCliente);
+        const dadosAdaptados = adaptarParaRobo(dadosCliente);
+
+        const validacao = cadastroSchema.safeParse(dadosAdaptados);
 
          if (!validacao.success) {
             const errosFormatados = validacao.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`);
