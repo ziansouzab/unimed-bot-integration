@@ -31,6 +31,7 @@ export default async function cadastrarPessoa(dados: any, tentativa = 1) {
     const planoSaudeUnimed =  mapaPlanoSiprovPlanoUnimed[dados.planos[0].nome];
 
     if (!planoSaudeUnimed) {
+        console.log("Plano Incorreto ou não cadastrado!");
         return { sucesso: false, cliente: dados.nomePessoa, mensagem: "Plano Incorreto ou não cadastrado!"}
     }
     

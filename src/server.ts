@@ -1,5 +1,6 @@
 import express from 'express';
 import { cadastrarPlano } from './controllers/unimed.controller.js';
+import { iniciarWorker } from './jobs/unimed.worker.js';
 
 const app = express();
 app.use(express.json());
@@ -45,4 +46,11 @@ app.post('/api/cadastrar', cadastrarPlano);
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`API do Robô rodando na porta ${PORT}`);
+
+    try{
+        iniciarWorker();
+        console.log('[Worker] Worker do BullMQ iniciado com sucesso!');
+    } catch(erro){
+        console.error('Erro ao iniciar o worker');
+    }
 });
