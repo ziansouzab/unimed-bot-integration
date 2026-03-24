@@ -32,8 +32,14 @@ export default async function cadastrarPessoa(dados: any, tentativa = 1) {
 
     if (!planoSaudeUnimed) {
         console.log("Plano Incorreto ou não cadastrado!");
-        return { sucesso: false, cliente: dados.nomePessoa, mensagem: "Plano Incorreto ou não cadastrado!"}
+        return { sucesso: false, cliente: dados.nomeCompleto, mensagem: "Plano Incorreto ou não cadastrado!"}
+        
+    } else if(!mapaPlanoSaude[planoSaudeUnimed]) {
+        return {
+            sucesso: false, cliente: dados.nomeCompleto, mensagem: "Plano Incorreto ou não cadastrado!"
+        }
     }
+
     
     const browser = await chromium.launch({ 
         headless: true,
