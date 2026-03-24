@@ -1,19 +1,17 @@
 import { chromium } from 'playwright';
 import gerarSessao from './gerar-sessao.js';
-import { normalizarNumero } from '../utils/utils.js';
 
-export default async function cadastrarPessoa(data: any, tentativa = 1) {
 
-    const dados = data.itens[0];
+export default async function cadastrarPessoa(dados: any, tentativa = 1) {
 
     const mapaEstadoCivil: Record<string, string> = {
-        "Solteiro": "1",
-        "Casado": "2",
-        "Viuvo": "3",
-        "Separado": "4",
-        "Divorciado": "5",
-        "Outros": "6",
-        "União Estavel": "7"
+        "SOLTEIRO": "1",
+        "CASADO": "2",
+        "VIUVO": "3",
+        "SEPARADO": "4",
+        "DIVORCIADO": "5",
+        "OUTROS": "6",
+        "UNIAO ESTAVEL": "7"
     };
 
     const mapaPlanoSaude: Record<string, string> = {
@@ -33,7 +31,7 @@ export default async function cadastrarPessoa(data: any, tentativa = 1) {
     const planoSaudeUnimed =  mapaPlanoSiprovPlanoUnimed[dados.planos[0].nome];
 
     if (!planoSaudeUnimed) {
-        return { sucesso: false, cliente: dados.nomeCompleto, mensagem: "Plano Incorreto ou não cadastrado!"}
+        return { sucesso: false, cliente: dados.nomePessoa, mensagem: "Plano Incorreto ou não cadastrado!"}
     }
     
     const browser = await chromium.launch({ 
@@ -125,15 +123,11 @@ export default async function cadastrarPessoa(data: any, tentativa = 1) {
         await frameCadastro.locator('#num_cep').pressSequentially(dados.endereco.cep.replace(/\D/g, ""), { delay: 50 });
         await frameCadastro.locator('#num_endereco').fill(dados.endereco.numero);
 
-        const {ddd, numero} = normalizarNumero(dados.telefoneCelular);
-
-        await frameCadastro.locator('#ddd_celular_1').fill(ddd);
-        await frameCadastro.locator('#num_celular_1').fill(numero);
+        await frameCadastro.locator('#ddd_celular_1').fill(dados.dddCelular);
+        await frameCadastro.locator('#num_celular_1').fill(dados.numeroCelular);
         await frameCadastro.locator('#end_email_1').fill(dados.email);
 
-        const matricula = Date.now().toString();
-
-        await frameCadastro.locator('#num_matric_empresa').fill(matricula);
+        await frameCadastro.locator('#num_matric_empresa').fill(dados.matriculaEmpresa);
         
         console.log('Enviando formulário...');
 

@@ -15,7 +15,7 @@ async function obterTokenAutenticacao(): Promise<string> {
 
     const stringLogin = Buffer.from(`${process.env.SIPROV_EMAIL}:${process.env.SIPROV_SENHA}`).toString('base64');
     
-    const respostaAuth = await fetch('https://acesso.siprov.com.br/siprov-api/ext/autenticacao', {
+    const respostaAuth = await fetch(`${process.env.BASE_URL_SIPROV}/autenticacao`, {
         method: 'POST',
         headers: { 
             'Authorization': `Basic ${stringLogin}`,
@@ -40,7 +40,7 @@ async function obterTokenAutenticacao(): Promise<string> {
 export async function buscarDadosBeneficiario(codPessoa: string) {
     let token = await obterTokenAutenticacao();
 
-    const urlConsulta = `https://acesso.siprov.com.br/siprov-api/ext/associado`;
+    const urlConsulta = `${process.env.BASE_URL_SIPROV}/associado`;
     const params = new URLSearchParams({
         codPessoa: codPessoa
     });
