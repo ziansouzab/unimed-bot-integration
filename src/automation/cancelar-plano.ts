@@ -107,7 +107,7 @@ export default async function excluirPessoa(dados: any, tentativa = 1) {
 
         } catch (erroTimeout) {
             console.error('ERRO: O site demorou muito para responder ou não exibiu nenhuma mensagem.');
-            return { sucesso: false, cliente: dados.nomeCompleto, mensagem: "O portal da Seguradora demorou muito para responder." };
+            return { sucesso: false, cliente: dados.nomeCompleto, mensagem: "O portal da Seguradora para exclusão demorou muito para responder." };
         }
 
     } catch(e){
